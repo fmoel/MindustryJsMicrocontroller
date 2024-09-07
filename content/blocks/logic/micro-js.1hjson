@@ -1,0 +1,6 @@
+type: JsLogicBlock
+instructionsPerTick: 60
+
+category: logic
+alwaysUnlocked: true
+buildVisibility: "shown"
