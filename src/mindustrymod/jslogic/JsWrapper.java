@@ -103,7 +103,7 @@ public class JsWrapper {
             return object;
         }
 
-        public Boolean linkNameIsValid(String linkName) {
+        public boolean linkNameIsValid(String linkName) {
             LogicLink logicLink = logicBuild.links.find(l -> l.name == linkName);
             return logicLink != null;
         }
@@ -131,7 +131,7 @@ public class JsWrapper {
             return null;
         }
 
-        public void sleep(Long milliseconds) {
+        public void sleep(long milliseconds) {
             executor.sleepUntil = Time.nanos() + Time.millisToNanos(milliseconds);
             executor.sendToYield();
         }
@@ -140,7 +140,7 @@ public class JsWrapper {
             executor.sendToYield();
         }
 
-        /*public void print(String text){
+        public void print(String text){
             cpu.yield();
             p1.setobj(text);
             LExecutor.PrintI print = new LExecutor.PrintI(p1);
@@ -149,7 +149,7 @@ public class JsWrapper {
 
         public String format(Object object){
             return PrintI.toString(object);
-        } */       
+        }        
     }
 
     public class JsBuilding extends JsGeneric {
@@ -209,7 +209,7 @@ public class JsWrapper {
             return ret.num();
         }
 
-        public void shoot(Double x, Double y, Boolean shoot) {
+        public void shoot(double x, double y, boolean shoot) {
             cpu.yield();
             p1.setnum(x);
             p2.setnum(y);
@@ -218,7 +218,7 @@ public class JsWrapper {
             control.run(executor);
         }
 
-        public void shootp(JsUnit unit, Boolean shoot) {
+        public void shootp(JsUnit unit, boolean shoot) {
             cpu.yield();
             p1.setobj(unit.target);
             p2.setbool(shoot);
@@ -240,14 +240,14 @@ public class JsWrapper {
             control.run(executor);
         }
 
-        public void setEnabled(Boolean value) {
+        public void setEnabled(boolean value) {
             cpu.yield();
             p1.setbool(value);
             LExecutor.ControlI control = new LExecutor.ControlI(LAccess.enabled, target, p1, p2, p3, p4);
             control.run(executor);
         }
 
-        public Double read(Long address) {
+        public double read(long address) {
             cpu.yield();
             p1.setnum(address);
             LExecutor.ReadI read = new LExecutor.ReadI(target, p1, ret);
@@ -255,7 +255,7 @@ public class JsWrapper {
             return ret.num();
         }
 
-        public void write(Long address, Double value) {
+        public void write(long address, double value) {
             cpu.yield();
             p1.setnum(address);
             p2.setnum(value);
@@ -263,7 +263,7 @@ public class JsWrapper {
             write.run(executor);
         }
 
-        public Object radar(RadarTarget targetType1, RadarTarget targetType2, RadarTarget targetType3, Long order, RadarSort sort) {
+        public Object radar(RadarTarget targetType1, RadarTarget targetType2, RadarTarget targetType3, long order, RadarSort sort) {
             cpu.yield();
             p1.setnum(order);
             LExecutor.RadarI radar = new LExecutor.RadarI(targetType1, targetType2, targetType3, sort, target, p1, ret);
@@ -279,7 +279,7 @@ public class JsWrapper {
             return null;
         }
 
-        /*public void flush(){
+        public void flush(){
             cpu.yield();
             if(target.building() instanceof LogicDisplayBuild){
                 LExecutor.DrawFlushI drawFlush = new LExecutor.DrawFlushI(target);
@@ -292,7 +292,7 @@ public class JsWrapper {
 
         public String toString() {
             return PrintI.toString(target.objval);
-        }*/
+        }
     }
 
     public class JsUnit extends JsGeneric {
@@ -316,19 +316,19 @@ public class JsWrapper {
             control(LUnitControl.idle);
         }
 
-        public void move(Double x, Double y) {
+        public void move(double x, double y) {
             p1.setnum(x);
             p2.setnum(y);
             control(LUnitControl.move);
         }
 
-        public void pathfind(Double x, Double y) {
+        public void pathfind(double x, double y) {
             p1.setnum(x);
             p2.setnum(y);
             control(LUnitControl.pathfind);
         }
 
-        public void approach(Double x, Double y) {
+        public void approach(double x, double y) {
             p1.setnum(x);
             p2.setnum(y);
             control(LUnitControl.approach);
@@ -342,7 +342,7 @@ public class JsWrapper {
             control(LUnitControl.stop);
         }
 
-        public Boolean within(Double x, Double y, Double radius) {
+        public boolean within(double x, double y, double radius) {
             p1.setnum(x);
             p2.setnum(y);
             p3.setnum(radius);
@@ -350,32 +350,32 @@ public class JsWrapper {
             return p4.bool();
         }
 
-        public void boost(Boolean value) {
+        public void boost(boolean value) {
             p1.setbool(value);
             control(LUnitControl.within);
         }
 
-        public void target(Double x, Double y, Boolean shoot) {
+        public void target(double x, double y, boolean shoot) {
             p1.setnum(x);
             p2.setnum(y);
             p3.setbool(shoot);
             control(LUnitControl.target);
         }
 
-        public void targetp(JsUnit unit, Boolean shoot) {
+        public void targetp(JsUnit unit, boolean shoot) {
             p1.setobj(unit.target.objval);
             p2.setbool(shoot);
             control(LUnitControl.targetp);
         }
 
-        public void itemTake(JsBuilding fromBuilding, Item itemType, Long amount) {
+        public void itemTake(JsBuilding fromBuilding, Item itemType, long amount) {
             p1.setobj(fromBuilding.target.objval);
             p2.setobj(itemType);
             p3.setnum(amount);
             control(LUnitControl.itemTake);
         }
 
-        public void itemDrop(JsBuilding toBuilding, Long amount) {
+        public void itemDrop(JsBuilding toBuilding, long amount) {
             p1.setobj(toBuilding.target.objval);
             p2.setnum(amount);
             control(LUnitControl.itemDrop);
@@ -399,13 +399,13 @@ public class JsWrapper {
             control(LUnitControl.payEnter);
         }
 
-        public void mine(Double x, Double y) {
+        public void mine(double x, double y) {
             p1.setnum(x);
             p2.setnum(y);
             control(LUnitControl.mine);
         }
 
-        public void build(Double x, Double y, String blockType, Long rotation, String config) {
+        public void build(double x, double y, String blockType, long rotation, String config) {
             p1.setnum(x);
             p2.setnum(y);
             p3.setobj(Vars.logicVars.get(blockType, executor.privileged));
@@ -414,12 +414,12 @@ public class JsWrapper {
             control(LUnitControl.build);
         }
 
-        public void flag(Double value) {
+        public void flag(double value) {
             p1.setnum(value);
             control(LUnitControl.flag);
         }
 
-        public GetBlockResult getBlock(Double x, Double y) {
+        public GetBlockResult getBlock(double x, double y) {
             p1.setnum(x);
             p2.setnum(y);
             control(LUnitControl.getBlock);
@@ -453,7 +453,7 @@ public class JsWrapper {
             return null;
         }
 
-        public LocateResult locateBuilding(BlockFlag group, Boolean enemy) {
+        public LocateResult locateBuilding(BlockFlag group, boolean enemy) {
             p1.setbool(enemy);
             return locate(LLocate.building, group);
         }
@@ -490,7 +490,7 @@ public class JsWrapper {
         }
 
         public class LocateResult {
-            public Double x, y;
+            public double x, y;
             public JsBuilding building;
 
             public LocateResult(double xval, double yval) {
@@ -527,7 +527,7 @@ public class JsWrapper {
             draw.run(executor);
         }
 
-        public void clear(Long r, Long g, Long b){
+        public void clear(long r, long g, long b){
             p1.setnum(r);
             p2.setnum(g);
             p3.setnum(b);
@@ -535,7 +535,7 @@ public class JsWrapper {
         }
         
         
-        public void color(Long r, Long g, Long b, Long a){
+        public void color(long r, long g, long b, long a){
             p1.setnum(r);
             p2.setnum(g);
             p3.setnum(b);
@@ -553,13 +553,13 @@ public class JsWrapper {
         }*/
         
         
-        public void stroke(Long width){
+        public void stroke(long width){
             p1.setnum(width);
             draw(GraphicsType.stroke);
         }
         
         
-        public void line(Long x, Long y, Long x2, Long y2){
+        public void line(long x, long y, long x2, long y2){
             p1.setnum(x);
             p2.setnum(y);
             p3.setnum(x2);
@@ -568,7 +568,7 @@ public class JsWrapper {
         }
         
         
-        public void rect(Long x, Long y, Long x2, Long y2){
+        public void rect(long x, long y, long x2, long y2){
             p1.setnum(x);
             p2.setnum(y);
             p3.setnum(x2);
@@ -577,7 +577,7 @@ public class JsWrapper {
         }
         
         
-        public void lineRect(Long x, Long y, Long x2, Long y2){
+        public void lineRect(long x, long y, long x2, long y2){
             p1.setnum(x);
             p2.setnum(y);
             p3.setnum(x2);
@@ -586,7 +586,7 @@ public class JsWrapper {
         }
         
         
-        public void poly(Long x, Long y, Boolean sides, Long radius, Long rotation){
+        public void poly(long x, long y, boolean sides, long radius, long rotation){
             p1.setnum(x);
             p2.setnum(y);
             p3.setbool(sides);
@@ -596,7 +596,7 @@ public class JsWrapper {
         }
         
         
-        public void linePoly(Long x, Long y, Boolean sides, Long radius, Long rotation){
+        public void linePoly(long x, long y, boolean sides, long radius, long rotation){
             p1.setnum(x);
             p2.setnum(y);
             p3.setbool(sides);
@@ -606,7 +606,7 @@ public class JsWrapper {
         }
         
         
-        public void triangle(Long x, Long y, Long x2, Long y2, Long x3, Long y3){
+        public void triangle(long x, long y, long x2, long y2, long x3, long y3){
             p1.setnum(x);
             p2.setnum(y);
             p3.setnum(x2);
@@ -617,7 +617,7 @@ public class JsWrapper {
         }
         
         
-        public void image(Long x, Long y, String image, Long size, Long rotation){
+        public void image(long x, long y, String image, long size, long rotation){
             p1.setnum(x);
             p2.setnum(y);            
             p3.setobj(Vars.logicVars.get(image, executor.privileged).objval);
@@ -627,36 +627,38 @@ public class JsWrapper {
         }
         
         
-        public void print(String text, Long x, Long y, String align){
+        public void print(String text, long x, long y, String align){
             executor.textBuffer.setLength(0);
             executor.textBuffer.append(text);
             p1.setnum(x);
-            p2.setnum(y);            
+            p2.setnum(y);  
+            p3.id = 0;          
             //p3.id = DrawStatement.nameToAlign.get(align, Align.bottomLeft);
             draw(GraphicsType.print);                  
         }
         
         
-        public void translate(Long x, Long y){
+        public void translate(long x, long y){
             p1.setnum(x);
             p2.setnum(y);            
             draw(GraphicsType.print);           
         }
         
         
-        public void scale(Long x, Long y){
+        public void scale(long x, long y){
             p1.setnum(x);
             p2.setnum(y);            
             draw(GraphicsType.scale);    
         }
     
     
-        public void rotate(Long x, Long y){
+        public void rotate(long x, long y){
             p1.setnum(x);
             p2.setnum(y);            
             draw(GraphicsType.rotate);           
         }
     }
+
     public class Console {
         private StringBuilder logContent;
 

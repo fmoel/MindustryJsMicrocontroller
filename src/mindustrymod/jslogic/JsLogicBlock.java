@@ -71,7 +71,7 @@ public class JsLogicBlock extends LogicBlock {
                                 jsExecutor.linkIds.add(build.id);
                         }
                     }
-
+                    Log.info("load code: " + code);
                     jsExecutor.load(code);
                 } catch (Exception e) {
                     // handle malformed code and replace it with nothing

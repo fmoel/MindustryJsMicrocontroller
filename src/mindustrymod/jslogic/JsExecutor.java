@@ -28,13 +28,13 @@ public class JsExecutor extends LExecutor implements Debugger {
     public String cooperativeCode;
 
     // Control the javascript thread
-    public volatile boolean isRunning = false;
+    public boolean isRunning = false;
     private Thread executionThread;
-    public final Object singleStepLock = new Object();
+    public Object singleStepLock = new Object();
     public final Object startLock = new Object();
-    public volatile boolean hasErrors = false;
+    public boolean hasErrors = false;
 
-    private volatile int currentLineNumber = 1;
+    private int currentLineNumber = 1;
     public String consoleLog = "";
     public Cons<String> consoleListener;
     public JsWrapper jsWrapper;
@@ -43,6 +43,7 @@ public class JsExecutor extends LExecutor implements Debugger {
 
     public JsExecutor() {
         this.isInitialized = false;
+        unit = new LVar("@unit");
         executionThread = new Thread(() -> {
             while(true){
                 try{
@@ -70,6 +71,8 @@ public class JsExecutor extends LExecutor implements Debugger {
                     isRunning = false;
                     Log.info("JS thread finds a bitter end");
                     return;
+                }catch(Throwable e){
+                    Log.err(e);
                 }
             }
         });
@@ -89,14 +92,13 @@ public class JsExecutor extends LExecutor implements Debugger {
 
         // interrupt running program
         if(isRunning){
-            executionThread.interrupt();
             for(long timeOut = Time.millis() + 10; isRunning && timeOut < Time.millis(); ){
+                executionThread.interrupt();
                 try{
                     Thread.sleep(1);
                 }catch(InterruptedException e){}
             }
         }
-
 
         try{
             Thread.sleep(1);
@@ -133,7 +135,6 @@ public class JsExecutor extends LExecutor implements Debugger {
             return;
         }
         synchronized (singleStepLock) {
-            Log.info("singleStep");
             singleStepLock.notify(); // Resume the paused thread
         }
     }
@@ -195,7 +196,7 @@ public class JsExecutor extends LExecutor implements Debugger {
             cx.setWrapFactory(new SandboxWrapFactory());
             cx.setClassShutter(new ClassShutter() {
                 public boolean visibleToScripts(String className) {
-                    if (className.startsWith("mindustry.logic.JsWrapper"))
+                    if (className.startsWith("mindustrymod.jslogic.JsWrapper"))
                         return true;
                     if (className.startsWith("java.lang.Object"))
                         return true;
@@ -206,7 +207,7 @@ public class JsExecutor extends LExecutor implements Debugger {
                     if (className.startsWith("java.lang.Double"))
                         return true;
 
-                    console.error("requested className: " + className);
+                    Log.info("requested className but denied: " + className);
                     return false;
                 }
             });
@@ -263,7 +264,6 @@ public class JsExecutor extends LExecutor implements Debugger {
 
         @Override
         public void onLineChange(Context cx, int lineNumber) {
-            executor.counter.numval = lineNumber;
             executor.currentLineNumber = lineNumber;
             console.log("onLineChange line " + lineNumber);
             synchronized (executor.singleStepLock) {
