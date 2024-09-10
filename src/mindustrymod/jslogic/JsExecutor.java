@@ -38,7 +38,7 @@ public class JsExecutor extends LExecutor implements Debugger {
     public String consoleLog = "";
     public Cons<String> consoleListener;
     public JsWrapper jsWrapper;
-    public JsWrapper.Console console;
+    public JsConsole console;
     public long sleepUntil = 0;
 
     public JsExecutor() {
@@ -52,8 +52,8 @@ public class JsExecutor extends LExecutor implements Debugger {
                     }
                     isRunning = true;
                     hasErrors = false;
+                    initializeContext(); // Initialize the context and start the script
                     while (isRunning){
-                        initializeContext(); // Initialize the context and start the script
                         try {
                             context.evaluateString(scope, this.cooperativeCode, "script", 1, null);
                         } catch (AbortCodeExecution e) {
@@ -62,10 +62,9 @@ public class JsExecutor extends LExecutor implements Debugger {
                             hasErrors = true;
                             isRunning = false;
                             console.error(getStackTrace(e));                            
-                        } finally {
-                            cleanupContext(); 
                         }
                     }
+                    cleanupContext(); 
                 }catch(InterruptedException e){
                     // this interrupt would stop the thread
                     isRunning = false;
@@ -198,6 +197,8 @@ public class JsExecutor extends LExecutor implements Debugger {
                 public boolean visibleToScripts(String className) {
                     if (className.startsWith("mindustrymod.jslogic.JsWrapper"))
                         return true;
+                    if (className.startsWith("mindustrymod.jslogic.JsConsole"))
+                        return true;
                     if (className.startsWith("java.lang.Object"))
                         return true;
                     if (className.startsWith("java.lang.Class"))
@@ -230,6 +231,17 @@ public class JsExecutor extends LExecutor implements Debugger {
         this.console = jsWrapper.console;
 
     }
+
+    private void cleanupContext() {
+        if (context != null) {
+            Context.exit(); // Properly exit the context
+            context = null; // Nullify the context to allow reinitialization
+            scope = null; // Nullify the scope for a fresh start
+            console = null;
+        }
+    }
+
+
 
     public void setConsoleListener(Cons<String> listener) {
         consoleListener = listener;
@@ -294,14 +306,6 @@ public class JsExecutor extends LExecutor implements Debugger {
 
     public int getCurrentLineNumber() {
         return currentLineNumber;
-    }
-
-    private void cleanupContext() {
-        if (context != null) {
-            Context.exit(); // Properly exit the context
-            context = null; // Nullify the context to allow reinitialization
-            scope = null; // Nullify the scope for a fresh start
-        }
     }
 
     public Set<String> getAllVariableNames() {

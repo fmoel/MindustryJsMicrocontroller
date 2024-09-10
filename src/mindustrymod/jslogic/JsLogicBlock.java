@@ -46,7 +46,7 @@ public class JsLogicBlock extends LogicBlock {
             jsExecutor.instructionsPerTick = instructionsPerTick;
             jsExecutor.build = this;
         }
-
+        
         @Override
         public void updateCode(String str, boolean keep, Cons<LAssembler> assemble) {
             updateCode(str);
@@ -67,11 +67,11 @@ public class JsLogicBlock extends LogicBlock {
                         if (link.active && link.valid) {
                             Building build = world.build(link.x, link.y);
                             jsExecutor.links[index++] = build;
-                            if (build != null)
+                            if (build != null){
                                 jsExecutor.linkIds.add(build.id);
+                            }
                         }
                     }
-                    Log.info("load code: " + code);
                     jsExecutor.load(code);
                 } catch (Exception e) {
                     // handle malformed code and replace it with nothing
@@ -105,8 +105,9 @@ public class JsLogicBlock extends LogicBlock {
                 boolean prev = state.rules.editor;
                 // this is a hack to allow configuration to work correctly in the editor for
                 // privileged processors
-                if (forceEditor)
+                if (forceEditor){
                     state.rules.editor = true;
+                }
                 configure(compress(code, relativeConnections()));
                 state.rules.editor = prev;
             });

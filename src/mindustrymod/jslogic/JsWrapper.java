@@ -22,11 +22,11 @@ import org.mozilla.javascript.*;
 public class JsWrapper {
     private JsExecutor executor;
     public CPU cpu;
-    public Console console;
+    public JsConsole console;
 
     public JsWrapper(JsExecutor executor, Scriptable scope) {
         this.executor = executor;
-        this.console = new Console();
+        this.console = new JsConsole(executor);
         cpu = new CPU();
 
         ScriptableObject.putProperty(scope, "cpu", Context.javaToJS(cpu, scope));
@@ -35,8 +35,6 @@ public class JsWrapper {
         createJsEnum(scope, RadarSort.class);
         createJsEnum(scope, RadarTarget.class);
         createJsEnum(scope, BlockFlag.class);
-
-        //createJsEnumFrowSeq(scope, Vars.content.items());
     }
     
     private <T extends Enum<T>> void createJsEnum(Scriptable scope, Class<T> enumType){
@@ -50,17 +48,6 @@ public class JsWrapper {
         String className = name  == null ? enumType.getName().substring(enumType.getName().lastIndexOf(".") + 1) : name;
         ScriptableObject.putProperty(scope, className, Context.javaToJS(enumObj, scope));
     }
-
-    /*private <T extends MappableContent> void createJsEnumFrowSeq(Scriptable scope, Seq<T> seq){
-        Scriptable enumObj = executor.context.newObject(scope);
-        for(T item : seq){
-            ScriptableObject.putConstProperty(enumObj, item.name, Context.javaToJS(item, scope));
-        }
-        String classFullName = seq.items.getClass().getComponentType().getName();
-        String className = classFullName.substring(classFullName.lastIndexOf(".") + 1);
-        ScriptableObject.putProperty(scope, className + "s", Context.javaToJS(enumObj, scope));
-    }*/
-
 
     public class CPU extends JsBuilding {
         private final JsLogicBuild logicBuild;
@@ -658,42 +645,4 @@ public class JsWrapper {
             draw(GraphicsType.rotate);           
         }
     }
-
-    public class Console {
-        private StringBuilder logContent;
-
-        public Console() {
-            this.logContent = new StringBuilder();
-        }
-
-        public void clear() {
-            logContent.setLength(0);
-            if (executor.consoleListener != null)
-                executor.consoleListener.get(getLogContent());
-        }
-
-        public void log(String string) {
-            appendMessage("LOG: ", string);
-        }
-
-        public void warn(String string) {
-            appendMessage("WARN: ", string);
-        }
-
-        public void error(String string) {
-            appendMessage("ERROR: ", string);
-        }
-
-        private void appendMessage(String prefix, String string) {
-            logContent.append(prefix);
-            logContent.append(string).append(" ");
-            logContent.append("\n");
-            if (executor.consoleListener != null)
-                executor.consoleListener.get(getLogContent());
-        }
-
-        public String getLogContent() {
-            return logContent.toString();
-        }
-    }    
 }
