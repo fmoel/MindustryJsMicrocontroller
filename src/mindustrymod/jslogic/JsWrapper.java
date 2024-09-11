@@ -34,7 +34,7 @@ public class JsWrapper {
         
         createJsEnum(scope, RadarSort.class);
         createJsEnum(scope, RadarTarget.class);
-        createJsEnum(scope, BlockFlag.class);
+        createJsEnum(scope, BlockFlag.class); 
     }
     
     private <T extends Enum<T>> void createJsEnum(Scriptable scope, Class<T> enumType){
