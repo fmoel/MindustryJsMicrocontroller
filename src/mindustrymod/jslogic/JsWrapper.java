@@ -40,6 +40,7 @@ public class JsWrapper {
     private <T extends Enum<T>> void createJsEnum(Scriptable scope, Class<T> enumType){
         createJsEnum(scope, enumType, null);
     }
+
     private <T extends Enum<T>> void createJsEnum(Scriptable scope, Class<T> enumType, String name){
         Scriptable enumObj = executor.context.newObject(scope);
         for(T enumValue : enumType.getEnumConstants()){
