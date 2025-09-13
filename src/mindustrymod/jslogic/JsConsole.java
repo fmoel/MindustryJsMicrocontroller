@@ -32,16 +32,16 @@ public class JsConsole {
       logContent.append(prefix);
       logContent.append(string).append(" ");
       logContent.append("\n");
-      if(logContent.length() > 1000){
-            logContent = new StringBuilder(logContent.substring(logContent.length() - 1000));
+      if(logContent.length() > 10000){
+            logContent = new StringBuilder(logContent.substring(logContent.length() - 10000));
       }
       if (executor.consoleListener != null)
           executor.consoleListener.get(getLogContent());
   }
 
   public String getLogContent() {
-    if(logContent.length() > 1000){
-        return logContent.substring(logContent.length() - 1000).toString();
+    if(logContent.length() > 10000){
+        return logContent.substring(logContent.length() - 10000).toString();
     }else{
         return logContent.toString();
     }

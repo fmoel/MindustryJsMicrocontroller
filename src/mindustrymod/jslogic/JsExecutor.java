@@ -1,5 +1,7 @@
 package mindustrymod.jslogic;
 
+import static mindustry.Vars.*;
+
 import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,8 +40,9 @@ public class JsExecutor extends LExecutor implements Debugger {
     public String consoleLog = "";
     public Cons<String> consoleListener;
     public JsWrapper jsWrapper;
-    public JsConsole console;
+    public JsConsole console = new JsConsole(this);
     public long sleepUntil = 0;
+    public int steps = 0;
 
     public JsExecutor() {
         this.isInitialized = false;
@@ -61,7 +64,11 @@ public class JsExecutor extends LExecutor implements Debugger {
                         } catch (Throwable e){
                             hasErrors = true;
                             isRunning = false;
-                            console.error(getStackTrace(e));                            
+                            Log.err(e);
+                            if(console != null)
+                                console.error(getStackTrace(e));      
+                            else
+                                Log.info("console is null, but shouldn't be null");
                         }
                     }
                     cleanupContext(); 
@@ -134,17 +141,35 @@ public class JsExecutor extends LExecutor implements Debugger {
             return;
         }
         synchronized (singleStepLock) {
+            steps = 1;
             singleStepLock.notify(); // Resume the paused thread
         }
     }
 
+    public void runTimes(int steps) {
+        if (!isInitialized) {
+            return;
+        }
+        if (sleepUntil > Time.nanos()) {
+            return;
+        }
+        synchronized (singleStepLock) {
+            this.steps = steps;
+            singleStepLock.notify(); // Resume the paused thread
+        }
+    }
+
+
     // will be called from the script thread eg. via cpu.yield()
     public void sendToYield() {
         synchronized (singleStepLock) {
-            try {
-                singleStepLock.wait();
-            } catch (InterruptedException e) {
-                throw new AbortCodeExecution();
+            steps--;
+            if(steps <= 0){
+                try {
+                    singleStepLock.wait();
+                } catch (InterruptedException e) {
+                    throw new AbortCodeExecution();
+                }
             }
         }
     }
@@ -152,7 +177,7 @@ public class JsExecutor extends LExecutor implements Debugger {
     // Returns if the executor is initialized with code
     @Override
     public boolean initialized() {
-        return isInitialized;
+        return false;
     }
 
     public class AbortCodeExecution extends Error{}
@@ -227,9 +252,7 @@ public class JsExecutor extends LExecutor implements Debugger {
         context.setDebugger(this, null);
         scope = context.initStandardObjects();
         
-        jsWrapper = new JsWrapper(this, scope);
-        this.console = jsWrapper.console;
-
+        jsWrapper = new JsWrapper(this, scope, console);
     }
 
     private void cleanupContext() {
@@ -237,7 +260,6 @@ public class JsExecutor extends LExecutor implements Debugger {
             Context.exit(); // Properly exit the context
             context = null; // Nullify the context to allow reinitialization
             scope = null; // Nullify the scope for a fresh start
-            console = null;
         }
     }
 
@@ -279,10 +301,13 @@ public class JsExecutor extends LExecutor implements Debugger {
             executor.currentLineNumber = lineNumber;
             console.log("onLineChange line " + lineNumber);
             synchronized (executor.singleStepLock) {
-                try {
-                    executor.singleStepLock.wait();
-                } catch (InterruptedException e) {
-                    throw new AbortCodeExecution();
+                steps--;
+                if(steps <= 0){
+                    try {
+                        executor.singleStepLock.wait();
+                    } catch (InterruptedException e) {
+                        throw new AbortCodeExecution();
+                    }
                 }
             }
         }

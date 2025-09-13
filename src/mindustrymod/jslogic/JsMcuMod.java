@@ -5,11 +5,13 @@ import mindustry.mod.*;
 import mindustry.content.*;
 import mindustry.content.TechTree.TechNode;
 import mindustry.world.*;
+import mindustrymod.ConfigureableRouter.ConfigurableRouter;
 import mindustry.type.*;
 import static mindustry.type.ItemStack.*;
 
 public class JsMcuMod extends Mod{
     public static Block jsMcu;
+    public static Block configRouter;
 
     public JsMcuMod(){
         Log.info("Loaded ExampleJavaMod constructor.");
@@ -43,6 +45,19 @@ public class JsMcuMod extends Mod{
             if(n.content.name == "micro-processor") {
                 Log.info("adding micro-processor-js to micro-processor");
                 TechTree.all.add(new TechNode(n, jsMcu, jsMcu.researchRequirements()));
+            }else{
+                //Log.info("TechTree: " + n.content.name);
+            }
+        });
+
+        configRouter = new ConfigurableRouter("configurable-router"){{
+            requirements(Category.distribution, with(Items.copper, 3));
+            buildCostMultiplier = 4f;
+        }};
+        TechTree.all.each(n -> {
+            if(n.content.name == "router") {
+                Log.info("configurable-router to router");
+                TechTree.all.add(new TechNode(n, configRouter, configRouter.researchRequirements()));
             }else{
                 //Log.info("TechTree: " + n.content.name);
             }

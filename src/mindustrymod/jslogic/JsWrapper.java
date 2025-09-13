@@ -24,9 +24,9 @@ public class JsWrapper {
     public CPU cpu;
     public JsConsole console;
 
-    public JsWrapper(JsExecutor executor, Scriptable scope) {
+    public JsWrapper(JsExecutor executor, Scriptable scope, JsConsole console) {
         this.executor = executor;
-        this.console = new JsConsole(executor);
+        this.console = console;
         cpu = new CPU();
 
         ScriptableObject.putProperty(scope, "cpu", Context.javaToJS(cpu, scope));
@@ -278,9 +278,9 @@ public class JsWrapper {
             }
         }
 
-        public String toString() {
+        /*public String toString() {
             return PrintI.toString(target.objval);
-        }
+        }*/
     }
 
     public class JsUnit extends JsGeneric {
@@ -510,9 +510,9 @@ public class JsWrapper {
         }
 
         public void draw(GraphicsType type){
-            cpu.yield();
-            DrawI draw = new DrawI((byte) type.ordinal(), p1, p2, p3, p4, p5, p6);
+            LExecutor.DrawI draw = new LExecutor.DrawI((byte) type.ordinal(), p1, p2, p3, p4, p5, p6);
             draw.run(executor);
+            cpu.yield();
         }
 
         public void clear(long r, long g, long b){

@@ -4,7 +4,9 @@ import arc.func.*;
 import arc.util.*;
 import mindustry.gen.*;
 import mindustry.logic.LAssembler;
+import mindustry.world.blocks.distribution.Router;
 import mindustry.world.blocks.logic.*;
+import mindustry.world.blocks.power.PowerNode;
 import mindustry.world.meta.*;
 
 import static mindustry.Vars.*;
@@ -15,7 +17,7 @@ public class JsLogicBlock extends LogicBlock {
     public int maxInstructionScale = 5;
     public int instructionsPerTick = 1;
     // privileged only
-    public int maxInstructionsPerTick = 40;
+    public int maxInstructionsPerTick = 100;
     public float range = 8 * 10;
 
     public JsLogicBlock(String name) {
@@ -27,6 +29,56 @@ public class JsLogicBlock extends LogicBlock {
         schematicPriority = 5;
         ignoreResizeConfig = true;
         envEnabled = Env.any;
+
+        /*config(byte[].class, (JsLogicBuild build, byte[] data) -> {
+            if(!accessible()) return;
+
+            build.readCompressed(data, true);
+        });
+
+        config(String.class, (JsLogicBuild build, String data) -> {
+            if(!accessible() || !privileged) return;
+
+            if(data != null && data.length() < maxNameLength){
+                build.tag = data;
+            }
+        });
+
+        config(Character.class, (JsLogicBuild build, Character data) -> {
+            if(!accessible() || !privileged) return;
+            PowerGraph
+            build.iconTag = data;
+        });
+
+        config(Integer.class, (JsLogicBuild entity, Integer pos) -> {
+            if(!accessible()) return;
+
+            //if there is no valid link in the first place, nobody cares
+            if(!entity.validLink(world.build(pos))) return;
+            var lbuild = world.build(pos);
+            int x = lbuild.tileX(), y = lbuild.tileY();
+
+            LogicLink link = entity.links.find(l -> l.x == x && l.y == y);
+            String bname = getLinkName(lbuild.block);
+
+            if(link != null){
+                link.active = !link.active;
+                //find a name when the base name differs (new block type)
+                if(!link.name.startsWith(bname)){
+                    link.name = "";
+                    link.name = entity.findLinkName(lbuild.block);
+                }
+                //disable when unlinking
+                if(!link.active && lbuild.block.autoResetEnabled && lbuild.lastDisabler == entity){
+                    lbuild.enabled = true;
+                }
+            }else{
+                entity.links.remove(l -> world.build(l.x, l.y) == lbuild);
+                entity.links.add(new LogicLink(x, y, entity.findLinkName(lbuild.block), true));
+            }
+
+            entity.updateCode(entity.code, true, null);
+        });        */
      }
 
     public class JsLogicBuild extends LogicBlock.LogicBuild{
@@ -78,6 +130,26 @@ public class JsLogicBlock extends LogicBlock {
                     jsExecutor.load("");
                 }
             }
+        }
+
+        @Override
+        public void updateTile(){
+            int accumulator;
+            super.updateTile();
+
+            if(state.rules.disableWorldProcessors && privileged) return;
+
+            if(privileged){
+                if(ipt == 0 || ipt > maxInstructionsPerTick){
+                    ipt = maxInstructionsPerTick;
+                }
+                accumulator = (int) edelta() * ipt;
+                jsExecutor.runTimes((int) accumulator);
+            }else{
+                accumulator = (int) edelta() * ipt;
+                if(accumulator > maxInstructionScale * ipt) accumulator = maxInstructionScale * ipt;
+            }
+            jsExecutor.runTimes(accumulator);
         }
 
         @Override
